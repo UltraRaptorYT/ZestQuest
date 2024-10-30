@@ -1,11 +1,9 @@
-import Wheel from "@/components/Wheel";
-import Scoreboard from "@/components/Scoreboard";
+import AddScore from "@/components/AddScore";
 
 export default function Home() {
   return (
-    <div>
-      {/* <Wheel /> */}
-      <Scoreboard />
-    </div>
+    <>
+      <AddScore />
+    </>
   );
 }

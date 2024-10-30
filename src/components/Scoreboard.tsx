@@ -54,7 +54,7 @@ export default function Scoreboard() {
       setLeaderboard(newData);
     }
     getLeaderboard();
-    const channels = supabase
+    supabase
       .channel("custom-all-channel")
       .on(
         "postgres_changes",
@@ -68,7 +68,7 @@ export default function Scoreboard() {
   }, []);
 
   return (
-    <div className="max-w-xl mx-auto h-full flex flex-col justify-start items-center">
+    <div className="max-w-xl mx-auto h-full flex flex-col justify-start items-center p-5">
       <div>
         <h1 className="text-3xl p-5 text-center flex flex-col gap-2 font-bold">
           <span>ZestQuest 2024</span>

@@ -14,10 +14,8 @@ body {
   background: #fff;
 }
 
-@media (prefers-color-scheme: dark) {
-  body {
-    background: #080c15;
-  }
+.dark body {
+  background: #080c15;
 }
 
 .fullHeight {

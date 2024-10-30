@@ -1,3 +1,9 @@
+import Scoreboard from "@/components/Scoreboard";
+
 export default function Score() {
-  return <div>Score Graph</div>;
+  return (
+    <>
+      <Scoreboard />
+    </>
+  );
 }
