@@ -101,7 +101,7 @@ export default function Scoreboard() {
               id="first"
             >
               <img
-                src="https:cdn-icons-png.flaticon.com/512/1586/1586967.png"
+                src="https://hlzsmadaanjcpyjghntc.supabase.co/storage/v1/object/public/zest/crown.png?t=2024-10-31T01%3A31%3A43.145Z"
                 className="w-1/3 aspect-square absolute -top-[calc(3.5rem+30px)]"
               />
               {leaderboard[0] && (
