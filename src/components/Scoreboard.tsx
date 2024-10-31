@@ -68,9 +68,9 @@ export default function Scoreboard() {
   }, []);
 
   return (
-    <div className="max-w-xl mx-auto h-full flex flex-col justify-start items-center p-5">
-      <div>
-        <h1 className="text-3xl p-5 text-center flex flex-col gap-2 font-bold">
+    <div className="w-full h-full flex flex-col justify-start items-center">
+      <div className="h-fit">
+        <h1 className="text-3xl text-center flex flex-col gap-2 font-bold">
           <span>ZestQuest 2024</span>
         </h1>
         <div className="flex justify-center items-stretch h-[190px]">
@@ -88,7 +88,7 @@ export default function Scoreboard() {
                   <p className="font-bold text-sm name text-black">
                     {leaderboard[1].team_name}
                   </p>
-                  <p className="font-bold text-[#adc3d1] points text-sm">
+                  <p className="font-bold text-[#adc3d1] points">
                     {leaderboard[1].score}
                   </p>
                 </>
@@ -101,7 +101,7 @@ export default function Scoreboard() {
               id="first"
             >
               <img
-                src="https://cdn-icons-png.flaticon.com/512/1586/1586967.png"
+                src="https:cdn-icons-png.flaticon.com/512/1586/1586967.png"
                 className="w-1/3 aspect-square absolute -top-[calc(3.5rem+30px)]"
               />
               {leaderboard[0] && (
@@ -113,7 +113,7 @@ export default function Scoreboard() {
                   <p className="font-bold text-sm name text-black">
                     {leaderboard[0].team_name}
                   </p>
-                  <p className="font-bold text-[#fcd012] points text-sm">
+                  <p className="font-bold text-[#fcd012] points">
                     {leaderboard[0].score}
                   </p>
                 </>
@@ -134,7 +134,7 @@ export default function Scoreboard() {
                   <p className="font-bold text-sm name text-black">
                     {leaderboard[2].team_name}
                   </p>
-                  <p className="font-bold text-[#fbac74] points text-sm">
+                  <p className="font-bold text-[#fbac74] points">
                     {leaderboard[2].score}
                   </p>
                 </>
@@ -143,10 +143,10 @@ export default function Scoreboard() {
           </div>
         </div>
       </div>
-      <div className="bg-[#dee2e6] dark:bg-[#23282d] h-[calc(100svh-116px-190px)] w-full rounded-3xl overflow-y-auto p-5 px-7 flex-col flex gap-4">
+      <div className="px-5 py-2 h-[calc(100dvh-100px-226px-20px)] md:h-[calc(100dvh-68px-226px-20px)] justify-start bg-[#dee2e6] dark:bg-[#23282d] w-full rounded-3xl overflow-y-auto">
         {leaderboard.slice(3).map((e, idx) => {
           return (
-            <div className="p-0 h-full flex">
+            <div className="py-3 flex items-center">
               <div className="flex gap-3 items-center w-full">
                 <span className="font-bold text-[#7c7c7c] dark:text-[#cacaca] w-7">
                   {idx + 4}

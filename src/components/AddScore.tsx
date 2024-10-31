@@ -49,6 +49,7 @@ export default function ComboboxDemo() {
         return e.score;
       })
       .reduce((partialSum, a) => partialSum + a, 0);
+    console.log(score);
     setScore(score);
   }
 
@@ -56,7 +57,7 @@ export default function ComboboxDemo() {
     if (!open && value) {
       getCurrentPoints();
     }
-  }, [open]);
+  }, [open, value]);
 
   useEffect(() => {
     supabase
@@ -66,7 +67,9 @@ export default function ComboboxDemo() {
         { event: "*", schema: "public", table: "zest_score" },
         async (payload) => {
           console.log("Change received!", payload);
-          await getCurrentPoints();
+          if ("team_id" in payload.new && payload.new.team_id == value) {
+            await getCurrentPoints();
+          }
         }
       )
       .subscribe();
@@ -89,23 +92,25 @@ export default function ComboboxDemo() {
     getTeamName();
   }, []);
 
-  async function changeScore(score: number) {
+  async function changeScore(scoreToAdd: number) {
     if (!value) {
+      console.log("No team selected!");
       return;
     }
     const { error } = await supabase.from("zest_score").insert({
       team_id: value,
-      score: score,
+      score: scoreToAdd,
     });
     if (error) {
       console.log(error);
       return error;
     }
+    setScore((prevScore) => prevScore + scoreToAdd);
     await getCurrentPoints();
   }
 
   return (
-    <div className="max-w-xl mx-auto h-full flex flex-col justify-start items-center p-5">
+    <div className="w-full mx-auto h-full flex flex-col justify-start items-center">
       <div className="flex flex-col gap-2 w-full">
         <p>Group Name</p>
         <Popover open={open} onOpenChange={setOpen}>
@@ -122,7 +127,7 @@ export default function ComboboxDemo() {
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-[200px] p-0">
+          <PopoverContent className="w-[250px] p-0">
             <Command>
               <CommandInput placeholder="Search group..." />
               <CommandList>

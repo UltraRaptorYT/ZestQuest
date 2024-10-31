@@ -1,6 +1,6 @@
 import Scoreboard from "@/components/Scoreboard";
 
-export default function Score() {
+export default function Admin() {
   return (
     <>
       <Scoreboard />

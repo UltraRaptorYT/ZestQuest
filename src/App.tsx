@@ -1,6 +1,5 @@
 import { Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
-import Score from "./pages/Score";
 import Error from "./pages/404";
 import Layout from "./pages/Layout";
 
@@ -9,7 +8,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route path="/" element={<Home />} />
-        <Route path="/score" element={<Score />} />
+        <Route path="/admin" element={<Home />} />
         {/* 404 ERROR */}
         <Route path="/*" element={<Error />} />
       </Route>
