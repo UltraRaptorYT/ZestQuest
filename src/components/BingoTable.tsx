@@ -9,7 +9,7 @@ import {
 import { useEffect, useState } from "react";
 import supabase from "@/lib/supabase";
 import { BingoAnimalsType } from "@/types";
-import { bingoSolver, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 type BingoTableType = {
   isDisabled: boolean;
