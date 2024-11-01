@@ -2,6 +2,7 @@ export type GroupType = {
   value: string;
   label: string;
   color: string;
+  bingo?: Record<string, number | null>;
 };
 
 export type BingoAnimalsType = {

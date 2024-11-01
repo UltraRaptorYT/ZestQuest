@@ -25,41 +25,52 @@ export default function Bingo() {
   const [groups, setGroups] = useState<GroupType[]>([]);
   const [bingoDisabled, setBingoDisabled] = useState<boolean>(false);
   const [isBoardComplete, setIsBoardComplete] = useState(false);
+  const [clearBingo, setClearBingo] = useState(false);
 
   // Initialize selectedAnimals state
   const [selectedAnimals, setSelectedAnimals] = useState<
     Record<string, number | null>
   >(
     Object.fromEntries(
-      [
-        "A",
-        "B",
-        "C",
-        "D",
-        "E",
-        "F",
-        "G",
-        "H",
-        "I",
-        "J",
-        "K",
-        "L",
-        "M",
-        "N",
-        "O",
-        "P",
-        "Q",
-        "R",
-        "S",
-        "T",
-        "U",
-        "V",
-        "W",
-        "X",
-        "Y",
-      ].map((letter) => [letter, null])
+      Array.from({ length: 25 }, (_, i) => [String.fromCharCode(65 + i), null])
     )
   );
+
+  async function clearBingoBoard() {
+    setSelectedAnimals(
+      Object.fromEntries(
+        Array.from({ length: 25 }, (_, i) => [
+          String.fromCharCode(65 + i),
+          null,
+        ])
+      )
+    );
+    setClearBingo(true);
+  }
+
+  useEffect(() => {
+    async function clearBingoFunc() {
+      if (clearBingo) {
+        await updateBingoBoard();
+      }
+    }
+
+    clearBingoFunc();
+  }, [clearBingo, selectedAnimals]);
+
+  async function getBingoState() {
+    const { data, error } = await supabase
+      .from("zest_state")
+      .select()
+      .eq("state", "bingoDisabled");
+    if (error) {
+      console.log(error);
+      return;
+    }
+    if (data.length) {
+      setBingoDisabled(data[0].value == "true");
+    }
+  }
 
   useEffect(() => {
     async function getTeamName() {
@@ -78,6 +89,18 @@ export default function Bingo() {
       return data;
     }
     getTeamName();
+
+    supabase
+      .channel("custom-all-channel")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "zest_state" },
+        async (payload) => {
+          console.log("Change received!", payload);
+          await getBingoState();
+        }
+      )
+      .subscribe();
   }, []);
 
   useEffect(() => {
@@ -95,33 +118,10 @@ export default function Bingo() {
       } else {
         setSelectedAnimals(
           Object.fromEntries(
-            [
-              "A",
-              "B",
-              "C",
-              "D",
-              "E",
-              "F",
-              "G",
-              "H",
-              "I",
-              "J",
-              "K",
-              "L",
-              "M",
-              "N",
-              "O",
-              "P",
-              "Q",
-              "R",
-              "S",
-              "T",
-              "U",
-              "V",
-              "W",
-              "X",
-              "Y",
-            ].map((letter) => [letter, null])
+            Array.from({ length: 25 }, (_, i) => [
+              String.fromCharCode(65 + i),
+              null,
+            ])
           )
         );
       }
@@ -146,6 +146,11 @@ export default function Bingo() {
     }
     // Submit logic here
     console.log("Board submitted:", selectedAnimals);
+    await updateBingoBoard();
+  }
+
+  async function updateBingoBoard() {
+    console.log(selectedAnimals);
     const { error } = await supabase
       .from("zest_team")
       .update({ bingo: selectedAnimals })
@@ -212,13 +217,21 @@ export default function Bingo() {
         selectedAnimals={selectedAnimals}
         handleSelect={handleSelect}
       />
-      <Button
-        className="mx-auto pt-2"
-        disabled={bingoDisabled || !isBoardComplete}
-        onClick={submitBingoBoard}
-      >
-        Submit
-      </Button>
+      <div className="flex gap-5 pt-2 justify-center items-center">
+        <Button
+          disabled={bingoDisabled || !isBoardComplete}
+          onClick={() => submitBingoBoard()}
+        >
+          Submit
+        </Button>
+        <Button
+          variant={"secondary"}
+          disabled={bingoDisabled}
+          onClick={() => clearBingoBoard()}
+        >
+          Clear
+        </Button>
+      </div>
     </div>
   );
 }

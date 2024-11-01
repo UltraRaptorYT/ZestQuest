@@ -216,7 +216,7 @@ export default function Scoreboard({
           </div>
         </div>
       </div>
-      <div className="px-5 py-2 h-[calc(100dvh-100px-226px-20px-8px-20px)] md:h-[calc(100dvh-68px-226px-20px)] justify-start bg-[#dee2e6] dark:bg-[#23282d] w-full rounded-3xl overflow-y-auto">
+      <div className="px-5 py-2 h-[calc(100dvh-100px-226px-20px-8px-20px)] md:h-[calc(100dvh-68px-254px-20px)] justify-start bg-[#dee2e6] dark:bg-[#23282d] w-full rounded-3xl overflow-y-auto">
         {leaderboard.slice(3).map((e, idx) => {
           return (
             <div className="py-3 flex items-center" key={idx + "Leaderboard"}>
