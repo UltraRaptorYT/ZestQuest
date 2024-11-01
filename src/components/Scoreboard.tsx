@@ -1,10 +1,57 @@
 import supabase from "@/lib/supabase";
 import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-export default function Scoreboard() {
+type ScoreboardProps = {
+  isAdmin?: boolean;
+  hideAdmin?: string;
+};
+
+export default function Scoreboard({
+  isAdmin = false,
+  hideAdmin = "false",
+}: ScoreboardProps) {
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [isFrozen, setIsFrozen] = useState<boolean>(false);
+  const [frozenTime, setFrozenTime] = useState<Date>();
+
+  async function updateFrozenState() {
+    const { error } = await supabase
+      .from("zest_state")
+      .update({ value: !isFrozen, time_updated: new Date() })
+      .eq("state", "freeze")
+      .select();
+    setIsFrozen((prev) => !prev);
+    if (error) {
+      console.log(error);
+      return;
+    }
+  }
+  async function getFrozenState() {
+    const { data, error } = await supabase
+      .from("zest_state")
+      .select()
+      .eq("state", "freeze");
+    if (error) {
+      console.log(error);
+      return;
+    }
+    if (data.length) {
+      setIsFrozen(data[0].value == "true");
+      setFrozenTime(data[0].time_updated);
+    }
+  }
 
   useEffect(() => {
+    getFrozenState();
+  }, []);
+
+  useEffect(() => {
+    if (!frozenTime) {
+      return;
+    }
+    console.log(frozenTime, "HI");
     async function getTeamName() {
       const { data, error } = await supabase
         .from("zest_team")
@@ -22,7 +69,10 @@ export default function Scoreboard() {
       if (!teamName) {
         return "ERROR";
       }
-      const { data, error } = await supabase.from("zest_score").select();
+      const { data, error } = await supabase
+        .from("zest_score")
+        .select()
+        .lte("created_at", frozenTime);
       if (error) {
         console.log(error);
         return error;
@@ -64,15 +114,38 @@ export default function Scoreboard() {
           await getLeaderboard();
         }
       )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "zest_state" },
+        async (payload) => {
+          console.log("Change received!", payload);
+          await getFrozenState();
+        }
+      )
       .subscribe();
-  }, []);
+  }, [frozenTime]);
 
   return (
     <div className="w-full h-full flex flex-col justify-start items-center">
+      {isAdmin && (
+        <div
+          className={cn(
+            "fixed bottom-3 right-3",
+            hideAdmin == "false" ? "opacity-100" : "opacity-0"
+          )}
+        >
+          <Button onClick={() => updateFrozenState()}>
+            {isFrozen ? "Unfreeze" : "Freeze"} Leaderboard
+          </Button>
+        </div>
+      )}
       <div className="h-fit">
-        <h1 className="text-3xl text-center flex flex-col gap-2 font-bold">
+        <h1 className="text-3xl text-center flex flex-col gap-2 font-bold pt-2">
           <span>ZestQuest 2024</span>
         </h1>
+        <div className="text-center italic text-sm h-[20px]">
+          <span>{isFrozen ? "Leaderboard Frozen" : ""}</span>
+        </div>
         <div className="flex justify-center items-stretch h-[190px]">
           <div className="p-0 h-full flex">
             <div
@@ -143,10 +216,10 @@ export default function Scoreboard() {
           </div>
         </div>
       </div>
-      <div className="px-5 py-2 h-[calc(100dvh-100px-226px-20px)] md:h-[calc(100dvh-68px-226px-20px)] justify-start bg-[#dee2e6] dark:bg-[#23282d] w-full rounded-3xl overflow-y-auto">
+      <div className="px-5 py-2 h-[calc(100dvh-100px-226px-20px-8px-20px)] md:h-[calc(100dvh-68px-226px-20px)] justify-start bg-[#dee2e6] dark:bg-[#23282d] w-full rounded-3xl overflow-y-auto">
         {leaderboard.slice(3).map((e, idx) => {
           return (
-            <div className="py-3 flex items-center">
+            <div className="py-3 flex items-center" key={idx + "Leaderboard"}>
               <div className="flex gap-3 items-center w-full">
                 <span className="font-bold text-[#7c7c7c] dark:text-[#cacaca] w-7">
                   {idx + 4}

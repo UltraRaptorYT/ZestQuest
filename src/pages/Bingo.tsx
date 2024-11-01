@@ -1,9 +1,14 @@
 import supabase from "@/lib/supabase";
+import BingoTable from "@/components/BingoTable";
 import { useEffect, useState } from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
-
-import { cn, useLocalStorageState } from "@/lib/utils";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn, useLocalStorageState } from "@/lib/utils";
 import {
   Command,
   CommandEmpty,
@@ -12,63 +17,14 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { GroupType } from "@/types";
 
-export default function ComboboxDemo() {
+export default function Bingo() {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useLocalStorageState("group", "");
-  const [score, setScore] = useState(0);
   const [groups, setGroups] = useState<GroupType[]>([]);
-  const buttons = [-1, 1, -5, 5, -10, 10, -50, 50];
-
-  async function getCurrentPoints() {
-    console.log(value);
-    const { data, error } = await supabase
-      .from("zest_score")
-      .select()
-      .eq("team_id", value);
-    if (error) {
-      console.log(error);
-      return error;
-    }
-    let score = 0;
-    score = await data
-      .map((e) => {
-        return e.score;
-      })
-      .reduce((partialSum, a) => partialSum + a, 0);
-    console.log(score);
-    setScore(score);
-  }
 
   useEffect(() => {
-    if (!open && value) {
-      getCurrentPoints();
-    }
-  }, [open, value]);
-
-  useEffect(() => {
-    supabase
-      .channel("custom-all-channel")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "zest_score" },
-        async (payload) => {
-          console.log("Change received!", payload);
-          if (
-            ("team_id" in payload.new && payload.new.team_id == value) ||
-            payload.eventType == "DELETE"
-          ) {
-            await getCurrentPoints();
-          }
-        }
-      )
-      .subscribe();
     async function getTeamName() {
       const { data, error } = await supabase
         .from("zest_team")
@@ -87,24 +43,6 @@ export default function ComboboxDemo() {
 
     getTeamName();
   }, []);
-
-  async function changeScore(scoreToAdd: number) {
-    if (!value) {
-      console.log("No team selected!");
-      return;
-    }
-    const { error } = await supabase.from("zest_score").insert({
-      team_id: value,
-      score: scoreToAdd,
-    });
-    if (error) {
-      console.log(error);
-      return error;
-    }
-    setScore((prevScore) => prevScore + scoreToAdd);
-    await getCurrentPoints();
-  }
-
   return (
     <div className="w-full mx-auto h-full flex flex-col justify-start items-center">
       <div className="flex flex-col gap-2 w-full">
@@ -154,23 +92,7 @@ export default function ComboboxDemo() {
           </PopoverContent>
         </Popover>
       </div>
-      <div className="text-xl pt-6 pb-3">
-        Current Points: <span className="font-bold">{score}</span>
-      </div>
-      <div className="grid grid-cols-2 gap-5 p-5 h-full ">
-        {buttons.map((e) => {
-          return (
-            <Button
-              variant="secondary"
-              className="text-3xl aspect-[3/2] w-full h-full"
-              onClick={() => changeScore(e)}
-              key={e}
-            >
-              {(e >= 0 ? "+" : "") + e}
-            </Button>
-          );
-        })}
-      </div>
+      <BingoTable board={[]} />
     </div>
   );
 }
