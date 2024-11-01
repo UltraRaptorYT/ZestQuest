@@ -3,3 +3,10 @@ export type GroupType = {
   label: string;
   color: string;
 };
+
+export type BingoAnimalsType = {
+  id: number;
+  logo: string;
+  animal: string;
+  created_at: Date;
+};
