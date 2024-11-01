@@ -2,7 +2,7 @@ import supabase from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { GroupType } from "@/types";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, bingoSolver } from "@/lib/utils";
 import { BingoAnimalsType } from "@/types";
 import {
   Dialog,
@@ -93,29 +93,31 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
         }
       )
       .subscribe();
+    console.log(selectedAnimals);
   }, []);
 
-  useEffect(() => {
-    async function getTeamName() {
-      const { data, error } = await supabase
-        .from("zest_team")
-        .select("*")
-        .order("letter", { ascending: true });
-      if (error) {
-        console.log(error);
-        return;
-      }
-      let group = data.map((e) => {
-        return {
-          value: e.letter,
-          label: e.team_name,
-          color: e.color,
-          bingo: e.bingo,
-        };
-      });
-      setGroups(group);
-      return data;
+  async function getTeamName() {
+    const { data, error } = await supabase
+      .from("zest_team")
+      .select("*")
+      .order("letter", { ascending: true });
+    if (error) {
+      console.log(error);
+      return;
     }
+    let group = data.map((e) => {
+      return {
+        value: e.letter,
+        label: e.team_name,
+        color: e.color,
+        bingo: e.bingo,
+      };
+    });
+    setGroups(group);
+    return data;
+  }
+
+  useEffect(() => {
     getTeamName();
     getBingoState();
   }, []);
@@ -140,6 +142,7 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
       .update({ value: !bingoDisabled, time_updated: new Date() })
       .eq("state", "bingoDisabled")
       .select();
+    getTeamName();
     setBingoDisabled((prev) => !prev);
     if (error) {
       console.log(error);
@@ -147,7 +150,7 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
     }
   }
 
-  useEffect(() => {
+  async function addWheelData() {
     if (groups.length) {
       console.log(groups);
       let changeWhite: string[] = ["T", "D", "M", "E"];
@@ -162,9 +165,14 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
           };
         })
         .filter((e) => !selectedGroupList.includes(e.option?.charAt(0) || ""));
+      console.log("hi123", selectedGroupList);
       setWheelData(data);
     }
-  }, [groups, selectedGroupList]);
+  }
+
+  useEffect(() => {
+    addWheelData();
+  }, [selectedGroupList]);
 
   async function getCrossedOut() {
     const { data, error } = await supabase.from("zest_bingo").select();
@@ -172,7 +180,15 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
       console.log(error);
       return;
     }
-    setSelectedGroupList(data.map((e) => e.team_id));
+    let groupList = data.map((e) => e.team_id);
+    const lastGroupStart =
+      groupList.length % groups.length === 0
+        ? groupList.length - groups.length
+        : groupList.length - (groupList.length % groups.length);
+
+    const lastGroup = groupList.slice(lastGroupStart);
+    console.log(lastGroup, "HI");
+    setSelectedGroupList(lastGroup);
     setSelectedAnimals(data.map((e) => e.animal_id));
     console.log(data);
     return data;
@@ -180,7 +196,7 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
 
   useEffect(() => {
     getCrossedOut();
-  }, []);
+  }, [groups]);
 
   async function removeGroupAfterSpinning() {
     setSelectedGroup(wheelData[prizeNumber].option);
@@ -195,6 +211,9 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
     setSelectedAnimals((prev) => [...prev, animal_id]);
     let team_id = groups.filter((e) => e.label == selectedGroup)[0].value;
     setSelectedGroupList((prev) => [...prev, selectedGroup.charAt(0) || ""]);
+    if (selectedGroupList.length >= groups.length - 1) {
+      setSelectedGroupList([]);
+    }
     const { error } = await supabase
       .from("zest_bingo")
       .insert({ team_id: team_id, animal_id: animal_id });
@@ -204,6 +223,30 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
       return;
     }
   }
+
+  useEffect(() => {
+    if (!openDialog) {
+      setSelectedGroup(undefined);
+    }
+  }, [openDialog]);
+
+  useEffect(() => {
+    async function handleCheckBingo() {
+      for (let group of groups) {
+        if (!group.bingo) continue;
+        const numSolve = bingoSolver(group.bingo, selectedAnimals);
+        console.log(group.label, group.bingo, selectedAnimals);
+        console.log(group.label, "Checking", numSolve);
+        if (numSolve >= 2) {
+          alert(group.label + " Wins!");
+        }
+      }
+    }
+
+    if (selectedAnimals.length > 0) {
+      handleCheckBingo();
+    }
+  }, [selectedAnimals, groups]);
 
   async function clearBingo() {
     const data = await getCrossedOut();
@@ -228,7 +271,11 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
       >
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
           <DialogTrigger asChild>
-            <Button variant={"secondary"} disabled={!bingoDisabled}>
+            <Button
+              variant={"secondary"}
+              disabled={!bingoDisabled}
+              onClick={() => console.log(wheelData)}
+            >
               Wheel
             </Button>
           </DialogTrigger>

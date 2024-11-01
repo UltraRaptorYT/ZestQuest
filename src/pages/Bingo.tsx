@@ -100,7 +100,16 @@ export default function Bingo() {
           await getBingoState();
         }
       )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "zest_bingo" },
+        async (payload) => {
+          console.log("Change received!", payload);
+          await getBingoState();
+        }
+      )
       .subscribe();
+    getBingoState();
   }, []);
 
   useEffect(() => {
@@ -150,7 +159,6 @@ export default function Bingo() {
   }
 
   async function updateBingoBoard() {
-    console.log(selectedAnimals);
     const { error } = await supabase
       .from("zest_team")
       .update({ bingo: selectedAnimals })
