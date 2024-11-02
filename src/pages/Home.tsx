@@ -3,6 +3,7 @@ import Scoreboard from "@/components/Scoreboard";
 import Bingo from "@/pages/Bingo";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLocalStorageState } from "@/lib/utils";
+import Zoom from "@/pages/Zoom";
 
 export default function Home() {
   const [currentTab, setCurrentTab] = useLocalStorageState("tab", "score");
@@ -31,7 +32,7 @@ export default function Home() {
           <Bingo />
         </TabsContent>
         <TabsContent value="zoom" className="h-full">
-          <Scoreboard />
+          <Zoom />
         </TabsContent>
         <TabsContent value="shop" className="h-full">
           <Scoreboard />

@@ -2,6 +2,7 @@ import React from "react";
 import AddScore from "@/components/AddScore";
 import Scoreboard from "@/components/Scoreboard";
 import BingoAdmin from "@/pages/BingoAdmin";
+import ZoomAdmin from "@/pages/ZoomAdmin";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn, useLocalStorageState } from "@/lib/utils";
 
@@ -52,7 +53,7 @@ export default function Admin() {
           <BingoAdmin hideAdmin={hideAdmin} />
         </TabsContent>
         <TabsContent value="zoom" className="h-full">
-          {/* <Scoreboard /> */}
+          <ZoomAdmin />
         </TabsContent>
         <TabsContent value="shop" className="h-full">
           {/* <Scoreboard /> */}

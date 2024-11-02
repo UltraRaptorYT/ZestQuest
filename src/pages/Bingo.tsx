@@ -122,7 +122,7 @@ export default function Bingo() {
         console.log(error);
         return;
       }
-      if (data[0].bingo) {
+      if (data[0] && data[0].bingo) {
         setSelectedAnimals(data[0].bingo);
       } else {
         setSelectedAnimals(
