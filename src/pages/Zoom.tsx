@@ -30,6 +30,7 @@ export default function Zoom() {
   const [imgState, setImgState] = useState(0);
   const [isZoomed, setIsZoomed] = useState(true);
   const [guess, setGuess] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   useEffect(() => {
     zoomJSON["zoom"].forEach((e) => {
@@ -71,11 +72,6 @@ export default function Zoom() {
   }, [zoomState]);
 
   useEffect(() => {
-    if (isZoomed) {
-    }
-  }, [isZoomed]);
-
-  useEffect(() => {
     async function getTeamName() {
       const { data, error } = await supabase
         .from("zest_team")
@@ -93,30 +89,65 @@ export default function Zoom() {
     }
     getTeamName();
   }, []);
-
   async function submitAnswers() {
     if (!value) {
       alert("Please select a group you are submitting for.");
       return;
     }
     if (!isZoomed) {
-      alert("What u doing?");
+      alert("What are you doing?");
       return;
     }
     if (!guess) {
       alert("Please enter your guess!");
       return;
     }
-    console.log(guess);
-    const { error } = await supabase
-      .from("zest_zoom")
-      .insert({ team_id: value, zoom: imgState, guess: guess });
-    if (error) {
-      console.log(error);
+
+    if (isSubmitted) {
+      // Switch to edit mode by setting `isSubmitted` to false
+      setIsSubmitted(false);
       return;
     }
-    setGuess("");
-    return;
+
+    // Check if the guess has already been submitted to update it
+    const { data: existingData, error: fetchError } = await supabase
+      .from("zest_zoom")
+      .select("*")
+      .eq("team_id", value)
+      .eq("zoom", imgState);
+
+    if (fetchError) {
+      console.error(fetchError);
+      return;
+    }
+
+    if (existingData && existingData.length > 0) {
+      // Update the existing guess
+      const { error: updateError } = await supabase
+        .from("zest_zoom")
+        .update({ guess: guess })
+        .eq("team_id", value)
+        .eq("zoom", imgState);
+
+      if (updateError) {
+        console.error(updateError);
+        return;
+      }
+      alert("Guess updated successfully!");
+    } else {
+      // Insert if no guess exists for this team and zoom state
+      const { error: insertError } = await supabase
+        .from("zest_zoom")
+        .insert({ team_id: value, zoom: imgState, guess: guess });
+
+      if (insertError) {
+        console.error(insertError);
+        return;
+      }
+      alert("Guess submitted successfully!");
+    }
+
+    setIsSubmitted(true); // Mark as submitted and disable editing
   }
 
   return (
@@ -215,7 +246,7 @@ export default function Zoom() {
             type="text"
             id="guess"
             placeholder="Guess here"
-            disabled={!isZoomed}
+            disabled={!isZoomed || isSubmitted} // Enable editing only if `isSubmitted` is false
             value={guess}
             onInput={(e) => {
               setGuess((e.target as HTMLInputElement).value);
@@ -223,7 +254,7 @@ export default function Zoom() {
           />
         </div>
         <Button onClick={() => submitAnswers()} disabled={!isZoomed}>
-          Submit
+          {isSubmitted ? "Edit" : "Submit"}
         </Button>
       </div>
     </div>
