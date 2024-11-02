@@ -41,7 +41,7 @@ export default function Admin() {
         </TabsList>
         <TabsContent value="score" className="h-full">
           <div className="max-w-xl mx-auto h-full flex flex-col justify-start items-center px-5">
-            <AddScore />
+            <AddScore isAdmin={true} />
           </div>
         </TabsContent>
         <TabsContent value="scoreboard" className="h-full">
@@ -53,10 +53,10 @@ export default function Admin() {
           <BingoAdmin hideAdmin={hideAdmin} />
         </TabsContent>
         <TabsContent value="zoom" className="h-full">
-          <ZoomAdmin />
+          <ZoomAdmin hideAdmin={hideAdmin} />
         </TabsContent>
         <TabsContent value="shop" className="h-full">
-          {/* <Scoreboard /> */}
+          WIP
         </TabsContent>
       </Tabs>
     </div>

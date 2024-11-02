@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/popover";
 import { GroupType } from "@/types";
 
-export default function ComboboxDemo() {
+export default function AddScore({ isAdmin = false }: { isAdmin?: boolean }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useLocalStorageState("group", "");
   const [score, setScore] = useState(0);
@@ -90,12 +90,13 @@ export default function ComboboxDemo() {
 
   async function changeScore(scoreToAdd: number) {
     if (!value) {
-      console.log("No team selected!");
+      alert("Please select a group you are submitting for.");
       return;
     }
     const { error } = await supabase.from("zest_score").insert({
       team_id: value,
       score: scoreToAdd,
+      isAdmin: isAdmin,
     });
     if (error) {
       console.log(error);

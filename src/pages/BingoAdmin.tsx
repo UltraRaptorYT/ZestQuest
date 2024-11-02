@@ -261,6 +261,36 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
     }
   }
 
+  async function resetTeamBoard(value: string) {
+    const { error } = await supabase
+      .from("zest_team")
+      .update({
+        bingo: Object.fromEntries(
+          Array.from({ length: 25 }, (_, i) => [
+            String.fromCharCode(65 + i),
+            null,
+          ])
+        ),
+      })
+      .eq("letter", value);
+    if (error) {
+      console.log(error);
+      return;
+    }
+  }
+
+  async function resetBoards() {
+    let isConfirmed = confirm("Are you sure?");
+    if (!isConfirmed) {
+      return;
+    }
+    for await (let group of groups) {
+      console.log(group);
+      await resetTeamBoard(group.value);
+    }
+    alert("COMPLETED");
+  }
+
   return (
     <div className="w-full h-full">
       <div
@@ -269,13 +299,16 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
           hideAdmin == "false" ? "opacity-100" : "opacity-0"
         )}
       >
+        <Button
+          variant={"destructive"}
+          disabled={!bingoDisabled}
+          onClick={() => resetBoards()}
+        >
+          Reset Boards
+        </Button>
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
           <DialogTrigger asChild>
-            <Button
-              variant={"secondary"}
-              disabled={!bingoDisabled}
-              onClick={() => console.log(wheelData)}
-            >
+            <Button variant={"secondary"} disabled={!bingoDisabled}>
               Wheel
             </Button>
           </DialogTrigger>
@@ -385,7 +418,6 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
           );
         })}
       </div>
-      {/* {JSON.stringify(groups)} */}
     </div>
   );
 }

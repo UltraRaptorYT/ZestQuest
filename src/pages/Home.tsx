@@ -35,7 +35,7 @@ export default function Home() {
           <Zoom />
         </TabsContent>
         <TabsContent value="shop" className="h-full">
-          <Scoreboard />
+          WIP
         </TabsContent>
       </Tabs>
     </div>
