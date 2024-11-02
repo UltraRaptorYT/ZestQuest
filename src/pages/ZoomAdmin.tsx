@@ -101,6 +101,10 @@ export default function ZoomAdmin({
   }
 
   useEffect(() => {
+    checkNumberResponse();
+  }, [imgState]);
+
+  useEffect(() => {
     supabase
       .channel("custom-all-channel")
       .on(
