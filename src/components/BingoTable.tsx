@@ -15,6 +15,7 @@ type BingoTableType = {
   isDisabled: boolean;
   onComplete: (complete: boolean) => void;
   selectedAnimals: Record<string, number | null>;
+  marked: number[];
   handleSelect: (key: string, value: number) => void;
 };
 
@@ -22,9 +23,9 @@ export default function BingoTable({
   isDisabled = true,
   onComplete,
   selectedAnimals,
+  marked,
   handleSelect,
 }: BingoTableType) {
-  const [marked, setMarked] = useState<number[]>([]);
   const fakeBoard = Array.from({ length: 25 }, (_, i) =>
     String.fromCharCode(65 + i)
   );
@@ -53,39 +54,8 @@ export default function BingoTable({
       (value) => value !== null
     );
     onComplete(allSelected);
-    console.log(selectedAnimals, "hi");
+    console.log(selectedAnimals);
   }, [selectedAnimals, onComplete]);
-
-  async function getBingo() {
-    const { data, error } = await supabase.from("zest_bingo").select();
-    if (error) {
-      console.log(error);
-      return;
-    }
-    console.log(data);
-    setMarked(data.map((e) => e.animal_id));
-  }
-
-  // useEffect(() => {
-  //   if (marked.length) {
-  //     bingoSolver(selectedAnimals, marked);
-  //   }
-  // }, [marked]);
-
-  useEffect(() => {
-    getBingo();
-    supabase
-      .channel("custom-all-channel")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "zest_bingo" },
-        async (payload) => {
-          console.log("Change received!", payload);
-          await getBingo();
-        }
-      )
-      .subscribe();
-  }, []);
 
   return (
     <div className="max-h-[500px] max-w-full grid grid-cols-5 grid-rows-5 justify-center items-center align-center justify-self-center py-2 aspect-square">

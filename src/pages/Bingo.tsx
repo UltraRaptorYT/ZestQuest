@@ -26,6 +26,7 @@ export default function Bingo() {
   const [bingoDisabled, setBingoDisabled] = useState<boolean>(false);
   const [isBoardComplete, setIsBoardComplete] = useState(false);
   const [clearBingo, setClearBingo] = useState(false);
+  const [marked, setMarked] = useState<number[]>([]);
 
   // Initialize selectedAnimals state
   const [selectedAnimals, setSelectedAnimals] = useState<
@@ -72,6 +73,16 @@ export default function Bingo() {
     }
   }
 
+  async function getBingo() {
+    const { data, error } = await supabase.from("zest_bingo").select();
+    if (error) {
+      console.log(error);
+      return;
+    }
+    console.log(data);
+    setMarked(data.map((e) => e.animal_id));
+  }
+
   useEffect(() => {
     async function getTeamName() {
       const { data, error } = await supabase
@@ -106,10 +117,12 @@ export default function Bingo() {
         async (payload) => {
           console.log("Change received!", payload);
           await getBingoState();
+          await getBingo();
         }
       )
       .subscribe();
     getBingoState();
+    getBingo();
   }, []);
 
   useEffect(() => {
@@ -156,6 +169,7 @@ export default function Bingo() {
     // Submit logic here
     console.log("Board submitted:", selectedAnimals);
     await updateBingoBoard();
+    alert("Board Submitted!");
   }
 
   async function updateBingoBoard() {
@@ -224,6 +238,7 @@ export default function Bingo() {
         onComplete={setIsBoardComplete}
         selectedAnimals={selectedAnimals}
         handleSelect={handleSelect}
+        marked={marked}
       />
       <div className="flex gap-5 pt-2 justify-center items-center">
         <Button

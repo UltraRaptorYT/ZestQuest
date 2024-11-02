@@ -173,7 +173,7 @@ export default function Zoom() {
             src="https://hlzsmadaanjcpyjghntc.supabase.co/storage/v1/object/public/zest/ZoomInZoomOut.png?t=2024-11-02T03%3A51%3A48.308Z"
             className="h-full object-contain"
           />
-          <div className="absolute text-2xl top-[18rem]">Are you Ready?</div>
+          <div className="absolute text-2xl bottom-8">Are you Ready?</div>
         </div>
       ) : (
         <div className="max-h-[250px] max-w-[250px] aspect-square flex items-center justify-center overflow-hidden mx-auto">

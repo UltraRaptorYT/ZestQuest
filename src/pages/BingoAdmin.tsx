@@ -92,6 +92,16 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
           }
         }
       )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "zest_team" },
+        async (payload) => {
+          console.log("Change received!", payload);
+          if (payload.eventType == "UPDATE") {
+            getTeamName();
+          }
+        }
+      )
       .subscribe();
     console.log(selectedAnimals);
   }, []);
@@ -237,7 +247,7 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
         const numSolve = bingoSolver(group.bingo, selectedAnimals);
         console.log(group.label, group.bingo, selectedAnimals);
         console.log(group.label, "Checking", numSolve);
-        if (numSolve >= 2) {
+        if (numSolve >= 1) {
           alert(group.label + " Wins!");
         }
       }
@@ -289,13 +299,31 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
       await resetTeamBoard(group.value);
     }
     alert("COMPLETED");
+    getTeamName();
+  }
+
+  async function clearBingoAnimals() {
+    let isConfirmed = confirm("Are you sure?");
+    if (!isConfirmed) {
+      return;
+    }
+
+    const { error } = await supabase
+      .from("zest_bingo")
+      .delete()
+      .in("animal_id", selectedAnimals);
+    if (error) {
+      console.log(error);
+      return;
+    }
+    alert("COMPLETED");
   }
 
   return (
     <div className="w-full h-full">
       <div
         className={cn(
-          "fixed bottom-3 right-3 flex gap-3",
+          "fixed bottom-3 right-3 grid grid-cols-2 gap-3",
           hideAdmin == "false" ? "opacity-100" : "opacity-0"
         )}
       >
@@ -305,6 +333,13 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
           onClick={() => resetBoards()}
         >
           Reset Boards
+        </Button>
+        <Button
+          variant={"outline"}
+          disabled={!bingoDisabled}
+          onClick={() => clearBingoAnimals()}
+        >
+          Clear Bingo
         </Button>
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
           <DialogTrigger asChild>
@@ -366,54 +401,67 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
         </Button>
       </div>
 
-      <div className={"grid grid-cols-5 w-full h-full gap-3"}>
+      <div className={"grid grid-cols-6 w-full h-full gap-3"}>
         {groups.map((e, i) => {
+          console.log(e.bingo && Object.values(e.bingo).filter((e) => e));
           return (
             <div
               className="flex flex-col items-center justify-center w-fit mx-auto"
               key={e.label + i}
             >
               <p className={`font-bold text-sm`}>{e.label}</p>
-              <div
-                className={
-                  "grid grid-cols-5 grid-rows-5 justify-center items-center align-center justify-self-center aspect-square h-full"
-                }
-              >
-                {e.bingo &&
-                  Object.values(e.bingo).map((e, i) => {
-                    return (
-                      <div
-                        className={cn(
-                          "border border-black dark:border-white w-full h-full flex items-center justify-center relative",
-                          e && selectedAnimals.includes(e)
-                            ? "dark:bg-white bg-black"
-                            : "bg-transparent",
-                          bingoDisabled ? "opacity-100" : "opacity-0"
-                        )}
-                        key={i}
-                      >
-                        <div>
-                          {bingoAnimalList.filter((animal) => {
-                            return animal.id == e;
-                          })[0] &&
-                            bingoAnimalList.filter((animal) => {
-                              return animal.id == e;
-                            })[0].logo}
-                        </div>
+              {e.bingo &&
+              Object.values(e.bingo).filter((e) => e).length >= 25 &&
+              bingoDisabled ? (
+                <div
+                  className={
+                    "grid grid-cols-5 grid-rows-5 justify-center items-center align-center justify-self-center aspect-square h-full"
+                  }
+                >
+                  {e.bingo &&
+                    Object.values(e.bingo).map((e, i) => {
+                      return (
                         <div
                           className={cn(
-                            "absolute",
+                            "border border-black dark:border-white w-full h-full flex items-center justify-center relative",
                             e && selectedAnimals.includes(e)
-                              ? "opacity-100"
-                              : "opacity-0"
+                              ? "dark:bg-white bg-black"
+                              : "bg-transparent",
+                            bingoDisabled ? "opacity-100" : "opacity-0"
                           )}
+                          key={i}
                         >
-                          <span>❌</span>
+                          <div className="text-3xl">
+                            {bingoAnimalList.filter((animal) => {
+                              return animal.id == e;
+                            })[0] &&
+                              bingoAnimalList.filter((animal) => {
+                                return animal.id == e;
+                              })[0].logo}
+                          </div>
+                          <div
+                            className={cn(
+                              "absolute",
+                              e && selectedAnimals.includes(e)
+                                ? "opacity-100"
+                                : "opacity-0"
+                            )}
+                          >
+                            <span>❌</span>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-              </div>
+                      );
+                    })}
+                </div>
+              ) : e.bingo &&
+                Object.values(e.bingo).filter((e) => e).length >= 25 &&
+                !bingoDisabled ? (
+                <div className="flex justify-center items-center h-full text-3xl">
+                  DONE!
+                </div>
+              ) : (
+                <div></div>
+              )}
             </div>
           );
         })}
