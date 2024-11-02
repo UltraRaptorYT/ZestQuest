@@ -14,7 +14,7 @@ export default function Scoreboard({
 }: ScoreboardProps) {
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [isFrozen, setIsFrozen] = useState<boolean>(false);
-  const [frozenTime, setFrozenTime] = useState<Date>();
+  const [frozenTime, setFrozenTime] = useState<Date>(new Date());
 
   async function updateFrozenState() {
     const { error } = await supabase
@@ -69,15 +69,21 @@ export default function Scoreboard({
       if (!teamName) {
         return "ERROR";
       }
-      const { data, error } = await supabase
-        .from("zest_score")
-        .select()
-        .lte("created_at", frozenTime);
+      const { data, error } = await supabase.from("zest_score").select();
       if (error) {
         console.log(error);
         return error;
       }
-      for await (let score of data) {
+      let scoreData = [...data];
+      console.log(scoreData, "hi");
+      if (isFrozen) {
+        scoreData = scoreData.filter((e) => {
+          return new Date(e.created_at) <= new Date(frozenTime);
+        });
+        console.log("FROZEN");
+        console.log(scoreData, frozenTime);
+      }
+      for await (let score of scoreData) {
         if (
           "score" in
           teamName.filter((e) => {
