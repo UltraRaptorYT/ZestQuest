@@ -332,7 +332,7 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsConfettiActive(false);
-    }, 5000);
+    }, 10000);
 
     // Cleanup timer if component unmounts before timeout
     return () => clearTimeout(timer);
