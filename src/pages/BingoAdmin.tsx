@@ -13,6 +13,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Wheel } from "react-custom-roulette";
+import useWindowSize from "react-use/lib/useWindowSize";
+import Confetti from "react-confetti";
 
 type BingoAdminProps = {
   hideAdmin?: string;
@@ -43,6 +45,8 @@ interface StyleType {
 }
 
 export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
+  const { width, height } = useWindowSize();
+  const [winGroupOpen, setWinGroupOpen] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [groups, setGroups] = useState<GroupType[]>([]);
   const [bingoDisabled, setBingoDisabled] = useState<boolean>(false);
@@ -55,6 +59,9 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
   const [selectedAnimals, setSelectedAnimals] = useState<number[]>([]);
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
+  const [winnerGroups, setWinnerGroups] = useState<string[]>([]);
+  const [isConfettiActive, setIsConfettiActive] = useState(true);
+
   const handleSpinClick = () => {
     if (!mustSpin) {
       setSelectedGroup(undefined);
@@ -89,6 +96,8 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
             setSelectedGroup(undefined);
             setSelectedGroupList([]);
             setSelectedAnimals([]);
+          } else {
+            getCrossedOut();
           }
         }
       )
@@ -175,7 +184,7 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
           };
         })
         .filter((e) => !selectedGroupList.includes(e.option?.charAt(0) || ""));
-      console.log("hi123", selectedGroupList);
+      console.log(selectedGroupList);
       setWheelData(data);
     }
   }
@@ -197,7 +206,6 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
         : groupList.length - (groupList.length % groups.length);
 
     const lastGroup = groupList.slice(lastGroupStart);
-    console.log(lastGroup, "HI");
     setSelectedGroupList(lastGroup);
     setSelectedAnimals(data.map((e) => e.animal_id));
     console.log(data);
@@ -240,23 +248,25 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
     }
   }, [openDialog]);
 
-  useEffect(() => {
-    async function handleCheckBingo() {
-      for (let group of groups) {
-        if (!group.bingo) continue;
-        const numSolve = bingoSolver(group.bingo, selectedAnimals);
-        console.log(group.label, group.bingo, selectedAnimals);
-        console.log(group.label, "Checking", numSolve);
-        if (numSolve >= 1) {
-          alert(group.label + " Wins!");
-        }
+  async function handleCheckBingo() {
+    for (let group of groups) {
+      if (!group.bingo) continue;
+      const numSolve = bingoSolver(group.bingo, selectedAnimals);
+      console.log(group.label, group.bingo, selectedAnimals);
+      console.log(group.label, "Checking", numSolve);
+      if (numSolve >= 1 && !winnerGroups.includes(group.label)) {
+        setWinnerGroups((prev) => [...prev, group.label]);
+        setWinGroupOpen(true);
+        setIsConfettiActive(true);
       }
     }
+  }
 
+  useEffect(() => {
     if (selectedAnimals.length > 0) {
       handleCheckBingo();
     }
-  }, [selectedAnimals, groups]);
+  }, [JSON.stringify(selectedAnimals), JSON.stringify(groups)]);
 
   async function clearBingo() {
     const data = await getCrossedOut();
@@ -319,14 +329,43 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
     alert("COMPLETED");
   }
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsConfettiActive(false);
+    }, 5000);
+
+    // Cleanup timer if component unmounts before timeout
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="w-full h-full">
+      {isConfettiActive && winGroupOpen && (
+        <Confetti
+          width={width}
+          height={height}
+          style={{ zIndex: 60 }}
+          run={isConfettiActive}
+        />
+      )}
       <div
         className={cn(
           "fixed bottom-3 right-3 grid grid-cols-2 gap-3",
           hideAdmin == "false" ? "opacity-100" : "opacity-0"
         )}
       >
+        <Dialog open={winGroupOpen} onOpenChange={setWinGroupOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="text-4xl text-center flex flex-col gap-2 p-6">
+                <span>Congratulations to</span>
+                {winnerGroups.sort().map((winnerGroup, idx) => {
+                  return <span key={"group" + idx}>Team {winnerGroup}!</span>;
+                })}
+              </DialogTitle>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
         <Button
           variant={"destructive"}
           disabled={!bingoDisabled}
