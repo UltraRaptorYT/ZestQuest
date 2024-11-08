@@ -20,7 +20,6 @@ export default function Home() {
           <TabsTrigger value="scoreboard">Scoreboard</TabsTrigger>
           <TabsTrigger value="bingo">Bingo</TabsTrigger>
           <TabsTrigger value="zoom">Zoom In Zoom Out</TabsTrigger>
-          <TabsTrigger value="shop">Shopping</TabsTrigger>
         </TabsList>
         <TabsContent value="score" className="h-full">
           <AddScore />
@@ -33,9 +32,6 @@ export default function Home() {
         </TabsContent>
         <TabsContent value="zoom" className="h-full">
           <Zoom />
-        </TabsContent>
-        <TabsContent value="shop" className="h-full">
-          WIP
         </TabsContent>
       </Tabs>
     </div>

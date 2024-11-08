@@ -254,7 +254,7 @@ export default function BingoAdmin({ hideAdmin = "false" }: BingoAdminProps) {
       const numSolve = bingoSolver(group.bingo, selectedAnimals);
       console.log(group.label, group.bingo, selectedAnimals);
       console.log(group.label, "Checking", numSolve);
-      if (numSolve >= 1 && !winnerGroups.includes(group.label)) {
+      if (numSolve >= 2 && !winnerGroups.includes(group.label)) {
         setWinnerGroups((prev) => [...prev, group.label]);
         setWinGroupOpen(true);
         setIsConfettiActive(true);

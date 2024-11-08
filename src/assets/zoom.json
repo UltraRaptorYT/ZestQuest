@@ -2,7 +2,7 @@
   "zoom": [
     {
       "url": "https://hlzsmadaanjcpyjghntc.supabase.co/storage/v1/object/public/zest/photo_3_2024-11-01_23-58-24.jpg",
-      "scale": 15,
+      "scale": 10,
       "X": 155,
       "Y": 195
     },
@@ -14,25 +14,25 @@
     },
     {
       "url": "https://hlzsmadaanjcpyjghntc.supabase.co/storage/v1/object/public/zest/photo_5_2024-11-01_23-58-24.jpg",
-      "scale": 15,
+      "scale": 10,
       "X": 300,
       "Y": 385
     },
     {
       "url": "https://hlzsmadaanjcpyjghntc.supabase.co/storage/v1/object/public/zest/photo_6_2024-11-01_23-58-24.jpg",
-      "scale": 15,
+      "scale": 6,
       "X": 520,
       "Y": 225
     },
     {
       "url": "https://hlzsmadaanjcpyjghntc.supabase.co/storage/v1/object/public/zest/photo_7_2024-11-01_23-58-24.jpg",
-      "scale": 15,
+      "scale": 10,
       "X": 160,
       "Y": 110
     },
     {
       "url": "https://hlzsmadaanjcpyjghntc.supabase.co/storage/v1/object/public/zest/photo_8_2024-11-01_23-58-24.jpg",
-      "scale": 25,
+      "scale": 10,
       "X": 175,
       "Y": 315
     },
@@ -44,33 +44,33 @@
     },
     {
       "url": "https://hlzsmadaanjcpyjghntc.supabase.co/storage/v1/object/public/zest/photo_11_2024-11-01_23-58-24.jpg",
-      "scale": 15,
-      "X": 106,
-      "Y": 269
+      "scale": 10,
+      "X": 105,
+      "Y": 270
     },
     {
       "url": "https://hlzsmadaanjcpyjghntc.supabase.co/storage/v1/object/public/zest/photo_12_2024-11-01_23-58-24.jpg",
-      "scale": 30,
+      "scale": 13,
       "X": 140,
       "Y": 135
     },
     {
       "url": "https://hlzsmadaanjcpyjghntc.supabase.co/storage/v1/object/public/zest/photo_13_2024-11-01_23-58-24.jpg",
-      "scale": 10,
+      "scale": 7,
       "X": 90,
-      "Y": 70
+      "Y": 35
     },
     {
       "url": "https://hlzsmadaanjcpyjghntc.supabase.co/storage/v1/object/public/zest/photo_14_2024-11-01_23-58-24.jpg",
-      "scale": 10,
+      "scale": 6,
       "X": 152,
       "Y": 380
     },
     {
       "url": "https://hlzsmadaanjcpyjghntc.supabase.co/storage/v1/object/public/zest/photo_15_2024-11-01_23-58-24.jpg",
       "scale": 15,
-      "X": 183,
-      "Y": 353
+      "X": 185,
+      "Y": 360
     },
     {
       "url": "https://hlzsmadaanjcpyjghntc.supabase.co/storage/v1/object/public/zest/photo_16_2024-11-01_23-58-24.jpg",
@@ -92,7 +92,7 @@
     },
     {
       "url": "https://hlzsmadaanjcpyjghntc.supabase.co/storage/v1/object/public/zest/photo_19_2024-11-01_23-58-24.jpg",
-      "scale": 10,
+      "scale": 5,
       "X": 405,
       "Y": 370
     }

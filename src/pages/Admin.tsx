@@ -37,7 +37,6 @@ export default function Admin() {
           <TabsTrigger value="scoreboard">Scoreboard</TabsTrigger>
           <TabsTrigger value="bingo">Bingo</TabsTrigger>
           <TabsTrigger value="zoom">Zoom In Zoom Out</TabsTrigger>
-          <TabsTrigger value="shop">Shopping</TabsTrigger>
         </TabsList>
         <TabsContent value="score" className="h-full">
           <div className="max-w-xl mx-auto h-full flex flex-col justify-start items-center px-5">
@@ -54,9 +53,6 @@ export default function Admin() {
         </TabsContent>
         <TabsContent value="zoom" className="h-full">
           <ZoomAdmin hideAdmin={hideAdmin} />
-        </TabsContent>
-        <TabsContent value="shop" className="h-full">
-          WIP
         </TabsContent>
       </Tabs>
     </div>
