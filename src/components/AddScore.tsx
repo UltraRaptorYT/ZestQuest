@@ -24,7 +24,7 @@ export default function AddScore({ isAdmin = false }: { isAdmin?: boolean }) {
   const [value, setValue] = useLocalStorageState("group", "");
   const [score, setScore] = useState(0);
   const [groups, setGroups] = useState<GroupType[]>([]);
-  const buttons = [-1, 1, -5, 5, -10, 10, -50, 50];
+  const buttons = [-6, 1, -7, 5, -8, 10, -15, 50];
 
   async function getCurrentPoints() {
     console.log(value);
